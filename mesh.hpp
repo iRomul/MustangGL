@@ -9,21 +9,21 @@
 using namespace std;
 
 #pragma pack (1)
-struct Vertex{
-	float p[3];
-	float n[3];
-	float uv[2];
+struct Vertex {
+    float p[3];
+    float n[3];
+    float uv[2];
 };
 #pragma pack (0)
 
-class Mesh{
+class Mesh {
 private:
     vector<Vertex> data;
-    Texture* texture;
+    Texture *texture;
 public:
     Mesh();
 
-    bool load(FILE* file, Texture* texture);
+    bool load(FILE *file, Texture *texture);
 
     void draw();
 };
