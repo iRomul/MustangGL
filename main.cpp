@@ -1,14 +1,13 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <vector>
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
 #include "texture.hpp"
 #include "mesh.hpp"
 #include "window.hpp"
+#include "math_util.h"
 
 using namespace std;
 using namespace glm;
@@ -26,9 +25,9 @@ const float animWheelAngle = 0.1;
 const float moveSpeed = 0.1;
 const float rotSpeed = 2;
 
-GLfloat lightAmbient[] = {0.8f, 0.8f, 0.8f, 1.0f}; // Значения фонового свет
-GLfloat lightDiffuse[] = {0.4f, 0.6f, 1.0f, 1.0f}; // Значения диффузного света
-vec4 lightPosition = vec4(0.0f, 4.0f, 0.0f, 1.0f);// Позиция света (w=1)
+vec4 lightAmbient = vec4(0.8f, 0.8f, 0.8f, 1.0f);  // Значения фонового свет
+vec4 lightDiffuse = vec4(0.4f, 0.6f, 1.0f, 1.0f);  // Значения диффузного света
+vec4 lightPosition = vec4(0.0f, 4.0f, 0.0f, 1.0f); // Позиция света (w = 1)
 
 Texture tex1;
 Texture tex2;
@@ -61,10 +60,6 @@ const float ANIM_MAX_DOOR_ROT = 60;
 const float ANIM_SPEED = 2;
 
 float animDoorRot = ANIM_MIN_DOOR_ROT;
-
-float toRad(float d) {
-    return d / 57.5f;
-}
 
 //функция загружает модель из файла. Конвертер из COLLADA просто выплевывает меши в файл модели, а мы их загружаем
 bool loadModel() {
@@ -103,7 +98,7 @@ void drawModel() {
     //устанавливаем положение модели
     mat4 modelMatrix = mat4(1);
     modelMatrix = translate(modelMatrix, modelPos);
-    modelMatrix = rotate(modelMatrix, toRad(modelRot), vec3(0, 1, 0));
+    modelMatrix = rotate(modelMatrix, degreesToRadians(modelRot), vec3(0, 1, 0));
     glLoadMatrixf((float *) glm::value_ptr(modelMatrix));//отправляем матрицу OpenGL
     body.draw();//рисуем корпус
 
@@ -111,7 +106,7 @@ void drawModel() {
     //левая
     mat4 leftDoorMatrix = mat4(1);
     leftDoorMatrix = translate(leftDoorMatrix, vec3(-1.16, 1.05, -1.55));
-    leftDoorMatrix = rotate(leftDoorMatrix, toRad(-animDoorRot), vec3(0, 1, 0));
+    leftDoorMatrix = rotate(leftDoorMatrix, degreesToRadians(-animDoorRot), vec3(0, 1, 0));
     leftDoorMatrix = modelMatrix *
                      leftDoorMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
     glLoadMatrixf((float *) glm::value_ptr(leftDoorMatrix));
@@ -121,7 +116,7 @@ void drawModel() {
     //правая
     mat4 rightDoorMatrix = mat4(1);
     rightDoorMatrix = translate(rightDoorMatrix, vec3(1.175, 1.05, -1.635));
-    rightDoorMatrix = rotate(rightDoorMatrix, toRad(animDoorRot), vec3(0, 1, 0));
+    rightDoorMatrix = rotate(rightDoorMatrix, degreesToRadians(animDoorRot), vec3(0, 1, 0));
     rightDoorMatrix = modelMatrix *
                       rightDoorMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
     glLoadMatrixf((float *) glm::value_ptr(rightDoorMatrix));
@@ -131,7 +126,7 @@ void drawModel() {
     //переднее левое
     mat4 wheelMatrix = mat4(1);
     wheelMatrix = translate(wheelMatrix, vec3(-0.84, 0.45, -1.67));
-    wheelMatrix = rotate(wheelMatrix, 3.14f + toRad(wheelRotAngle), vec3(0, 1, 0));
+    wheelMatrix = rotate(wheelMatrix, 3.14f + degreesToRadians(wheelRotAngle), vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, wheelAngle, vec3(1, 0, 0));//анимация
     wheelMatrix = modelMatrix *
                   wheelMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
@@ -151,7 +146,7 @@ void drawModel() {
     //переднее правое
     wheelMatrix = mat4(1);
     wheelMatrix = translate(wheelMatrix, vec3(0.84, 0.45, -1.67));
-    wheelMatrix = rotate(wheelMatrix, toRad(wheelRotAngle), vec3(0, 1, 0));
+    wheelMatrix = rotate(wheelMatrix, degreesToRadians(wheelRotAngle), vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, -wheelAngle, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
     glLoadMatrixf((float *) glm::value_ptr(wheelMatrix));
@@ -186,13 +181,15 @@ void drawFloor() {
 void processKeys() {
     if (keys[0x57]) {//w
         float step = -moveSpeed;
-        modelPos = vec3(modelPos.x + sin(toRad(modelRot)) * step, 0, modelPos.z + cos(toRad(modelRot)) * step);
+        modelPos = vec3(modelPos.x + sin(degreesToRadians(modelRot)) * step, 0,
+                        modelPos.z + cos(degreesToRadians(modelRot)) * step);
         wheelAngle += animWheelAngle;//анимации колес
     }
 
     if (keys[0x53]) {//s
         float step = +moveSpeed;
-        modelPos = vec3(modelPos.x + sin(toRad(modelRot)) * step, 0, modelPos.z + cos(toRad(modelRot)) * step);
+        modelPos = vec3(modelPos.x + sin(degreesToRadians(modelRot)) * step, 0,
+                        modelPos.z + cos(degreesToRadians(modelRot)) * step);
         wheelAngle -= animWheelAngle;
     }
 
@@ -268,7 +265,7 @@ void drawScene() {
         //берем матрицу модели
         mat4 modelMatrix = mat4(1);
         modelMatrix = translate(modelMatrix, modelPos);
-        modelMatrix = rotate(modelMatrix, toRad(modelRot), vec3(0, 1, 0));
+        modelMatrix = rotate(modelMatrix, degreesToRadians(modelRot), vec3(0, 1, 0));
 
         //устанавливаем камеру относительно модели и получим ее мировые координаты
         //vec3 cameraPos = modelMatrix * vec4(0.0, 5.0, 8.0, 1.0); //w будет 1
@@ -280,7 +277,8 @@ void drawScene() {
                 100.0f
         );
 
-        mat4 projectionMatrix = persectiveMatrix * lookAt(glm::vec3(4,3,3), vec3(modelPos.x, 2.0, modelPos.z), vec3(0, 1, 0));
+        mat4 projectionMatrix =
+                persectiveMatrix * lookAt(glm::vec3(4, 3, 3), vec3(modelPos.x, 2.0, modelPos.z), vec3(0, 1, 0));
 
         glLoadMatrixf((float *) glm::value_ptr(projectionMatrix));
     }
@@ -301,14 +299,14 @@ void drawScene() {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nCmdShow) {
 // Create Our OpenGL Window
-    if (!createWindow("Rodion", 800, 600, false)) {
+    if (!createWindow("Mustang", 800, 600, false)) {
         return 0;
     }
 
     configGL();
 
-    glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbient);        // установим Ambient Light
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse);        // установим Diffuse Light
+    glLightfv(GL_LIGHT1, GL_AMBIENT, &lightAmbient[0]);        // установим Ambient Light
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, &lightDiffuse[0]);        // установим Diffuse Light
     glLightfv(GL_LIGHT1, GL_POSITION, (float *) glm::value_ptr(lightPosition));    // установим позицию The Light
     glEnable(GL_LIGHT1);                                // включим
 
@@ -359,9 +357,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine
         }
     }
 
-// Shutdown
+    // Shutdown
     killWindow();                                    // Kill The Window
-    return (msg.wParam);                            // Exit The Program
 
     return 0;
 }
