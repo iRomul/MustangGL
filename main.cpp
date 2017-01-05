@@ -30,9 +30,9 @@ vec4 lightAmbient = vec4(0.8f, 0.8f, 0.8f, 1.0f);  // Значения фоно�
 vec4 lightDiffuse = vec4(0.4f, 0.6f, 1.0f, 1.0f);  // Значения диффузного света
 vec4 lightPosition = vec4(0.0f, 4.0f, 0.0f, 1.0f); // Позиция света (w = 1)
 
-Texture tex1;
-Texture tex2;
-Texture tex3;
+Texture bodyTexture("body.bmp");
+Texture wheelTexture("wheel.bmp");
+Texture groundTexture("ground.bmp");
 
 Mesh body;
 Mesh wheel;
@@ -71,22 +71,22 @@ bool loadModel() {
         return false;
     }
 
-    if (!rightDoor.load(file, &tex1)) {
+    if (!rightDoor.load(file, &bodyTexture)) {
         cout << "Can not load rightDoor mesh" << endl;
         return false;
     }
 
-    if (!body.load(file, &tex1)) {
+    if (!body.load(file, &bodyTexture)) {
         cout << "Can not load body mesh" << endl;
         return false;
     }
 
-    if (!wheel.load(file, &tex2)) {
+    if (!wheel.load(file, &wheelTexture)) {
         cout << "Can not load wheel mesh" << endl;
         return false;
     }
 
-    if (!leftDoor.load(file, &tex1)) {
+    if (!leftDoor.load(file, &bodyTexture)) {
         cout << "Can not load leftDoor mesh" << endl;
         return false;
     }
@@ -166,7 +166,7 @@ void drawModel() {
 
 //рисуем пол
 void drawFloor() {
-    tex3.bind();
+    groundTexture.bind();
 
     glColor3f(0.8f, 0.8f, 0.8f);
     glBegin(GL_QUADS);
@@ -287,7 +287,7 @@ void drawScene() {
         //устанавливаем камеру относительно модели и получим ее мировые координаты
         //vec3 cameraPos = modelMatrix * vec4(0.0, 5.0, 8.0, 1.0); //w будет 1
 
-        mat4 persectiveMatrix = perspective(
+        mat4 perspectiveMatrix = perspective(
                 45.0f,
                 aspectRatio,
                 0.1f,
@@ -295,7 +295,7 @@ void drawScene() {
         );
 
         mat4 projectionMatrix =
-                persectiveMatrix * lookAt(glm::vec3(4, 3, 3), vec3(modelPos.x, 2.0, modelPos.z), vec3(0, 1, 0));
+                perspectiveMatrix * lookAt(glm::vec3(4, 3, 3), vec3(modelPos.x, 2.0, modelPos.z), vec3(0, 1, 0));
 
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     }
@@ -316,31 +316,28 @@ void drawScene() {
 
 int main() {
     std::cout.sync_with_stdio(false);
-    // Initialise GLFW
+
     if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        getchar();
-        return -1;
+        cerr << "Failed to initialize GLFW" << endl;
+        exit(EXIT_FAILURE);
     }
 
     glfwWindowHint(GLFW_SAMPLES, 8);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
-    window = glfwCreateWindow(1024, 768, "Tutorial 0 - Keyboard and Mouse", NULL, NULL);
-    if (window == NULL) {
+    window = glfwCreateWindow(1024, 768, "Tutorial 0 - Keyboard and Mouse", nullptr, nullptr);
+    if (window == nullptr) {
         cerr << "Failed to open GLFW window." << endl;
         glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
 
-    // Initialize GLEW
     if (glewInit() != GLEW_OK) {
         cerr << "Failed to initialize GLEW" << endl;
-        getchar();
         glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     // Ensure we can capture the escape key being pressed below
@@ -352,7 +349,7 @@ int main() {
     glfwPollEvents();
     glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
-    // #b1deff -- blue sky color
+    // #b1deff - blue sky color
     glClearColor(0.694f, 0.871f, 1.0f, 0.0f);
 
     // Enable depth test
@@ -373,24 +370,16 @@ int main() {
     glLightfv(GL_LIGHT1, GL_POSITION, glm::value_ptr(lightPosition));    // установим позицию The Light
     glEnable(GL_LIGHT1);                                // включим
 
-//load textures
-    if (!tex1.load("body.bmp")) {
-        cout << "can not load body.bmp" << endl;
-        return 1;
-    }
-    if (!tex2.load("wheel.bmp")) {
-        cout << "can not load wheel.bmp" << endl;
-        return 1;
-    }
-    if (!tex3.load("ground.bmp")) {
-        cout << "can not load ground.bmp" << endl;
-        return 1;
+    //load textures
+    if (!bodyTexture.load() || !wheelTexture.load() || !groundTexture.load()) {
+        cerr << "Can't load texture bitmap file" << endl;
+        exit(EXIT_FAILURE);
     }
 
-//load model
+    //load model
     if (!loadModel()) {
-        cout << "Can not load model" << endl;
-        return 1;
+        cerr << "Can't load model file" << endl;
+        exit(EXIT_FAILURE);
     }
 
     do {

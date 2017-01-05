@@ -3,20 +3,35 @@
 #include <GL/gl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "windows.h"
+#include <windef.h>
+#include <string>
+#include <exception>
 
 const WORD BMP_FILE_SIGNATURE = 0x4D42;
 
-class Texture {
-private:
-    GLuint glTexture;
-
-    bool _load(FILE *file);
+class header_mismatch_exception : public std::exception {
+    std::string msg;
 
 public:
-    Texture();
+    header_mismatch_exception(std::string msg) {
+        this->msg = msg;
+    }
 
-    bool load(const char *fileName);
+    const char *what() const {
+        return msg.c_str();
+    }
+};
+
+class Texture {
+private:
+    std::string filename;
+    GLuint glTexture;
+
+public:
+    Texture(std::string filename);
+
+    bool load();
+    bool load(std::string filename);
 
     void bind();
 

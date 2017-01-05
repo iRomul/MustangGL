@@ -1,86 +1,72 @@
 #include "texture.hpp"
+
 #include <iostream>
+#include <fstream>
+#include <windows.h>
+#include <bits/unique_ptr.h>
 
 using namespace std;
 
-bool Texture::_load(FILE *file) {
-    BITMAPFILEHEADER file_header;
-    BITMAPINFOHEADER header;
-
-    if (fread(&file_header, sizeof(BITMAPFILEHEADER), 1, file) != 1) {
-        return false;
-    }
-
-    if (file_header.bfType != BMP_FILE_SIGNATURE) {
-        return false;
-    }
-
-    //чтение хедера
-    if (fread(&header, sizeof(BITMAPINFOHEADER), 1, file) != 1) {
-        return false;
-    }
-
-    //строчка в изображении
-    uint8_t *row = (uint8_t *) malloc(header.biWidth * 3);
-
-    if (!row) {
-        return false;
-    }
-
-    //все изображение
-    uint8_t *buffer = (uint8_t *) malloc(header.biWidth * header.biHeight * 3);
-
-    if (!buffer) {
-        free(row);
-        return false;
-    }
-
-    //чтение картинки
-    for (uint32_t y = 0; y < header.biHeight; y++) {
-        if (fread(row, 3, header.biWidth, file) != header.biWidth) {
-            free(row);//прекрасные ++ без нормального RAII, охх, какой ужас. Насколько же идиотска идея С++, в котором нет RAII по "стандарту"
-            free(buffer);//хоть STL есть, идея которой появилась у автора, когда он лежал в больнице после отравления =)
-            return false;
-        }
-
-        //BGR -> RGB - изобретение мастдаевского гения
-        for (uint32_t x = 0; x < header.biWidth; x++) {
-            buffer[y * header.biWidth * 3 + x * 3 + 0] = row[x * 3 + 2];
-            buffer[y * header.biWidth * 3 + x * 3 + 1] = row[x * 3 + 1];
-            buffer[y * header.biWidth * 3 + x * 3 + 2] = row[x * 3 + 0];
-        }
-    }
-
-
-    glGenTextures(1, &glTexture);
-    glBindTexture(GL_TEXTURE_2D, glTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, header.biWidth, header.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    free(row);
-    free(buffer);
-
-    return true;
-}
-
-Texture::Texture() {
+Texture::Texture(std::string filename) {
+    this->filename = filename;
     glTexture = 0;
 }
 
+bool Texture::load() {
+    return load(filename);
+}
+
 //загрузка текстуры
-bool Texture::load(const char *fileName) {
-    FILE *file = fopen(fileName, "rb");
-    if (!file) {
-        cout << "can not read file" << endl;
+bool Texture::load(std::string filename) {
+    ifstream file;
+    file.exceptions(ios::failbit | ios::badbit);
+
+    try {
+        file.open(filename, ios::in | ios::binary);
+
+        BITMAPFILEHEADER file_header;
+        BITMAPINFOHEADER header;
+
+        file.seekg(0, ios::beg);
+
+        file.read((char *) &file_header, sizeof(BITMAPFILEHEADER));
+
+        if (file_header.bfType != BMP_FILE_SIGNATURE) {
+            throw header_mismatch_exception("File header mismatch");
+        }
+
+        //чтение хедера
+        file.read((char *) &header, sizeof(BITMAPINFOHEADER));
+        //строчка в изображении
+        unique_ptr<uint8_t[]> row(new uint8_t[header.biWidth * 3]);
+        //все изображение
+        unique_ptr<uint8_t[]> buffer(new uint8_t[header.biWidth * header.biHeight * 3]);
+
+        int width = header.biWidth;
+        int height = header.biHeight;
+
+        //чтение картинки
+        for (uint32_t y = 0; y < height; y++) {
+            file.read((char *) row.get(), width * 3);
+            //BGR -> RGB - изобретение мастдаевского гения
+            for (uint32_t x = 0; x < width; x++) {
+                buffer[y * width * 3 + x * 3 + 0] = row[x * 3 + 2];
+                buffer[y * width * 3 + x * 3 + 1] = row[x * 3 + 1];
+                buffer[y * width * 3 + x * 3 + 2] = row[x * 3 + 0];
+            }
+        }
+
+        glGenTextures(1, &glTexture);
+        glBindTexture(GL_TEXTURE_2D, glTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer.get());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    } catch (exception &e) {
+        cerr << "Texture load: can't load bitmap '" << filename << "', cause: " << e.what() << endl;
         return false;
     }
 
-    bool result = _load(file);
-
-    fclose(file);
-
-    return result;
+    return true;
 }
 
 void Texture::bind() {

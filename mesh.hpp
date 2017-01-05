@@ -8,13 +8,11 @@
 
 using namespace std;
 
-#pragma pack (1)
-struct Vertex {
+struct alignas(1) Vertex {
     float p[3];
     float n[3];
     float uv[2];
 };
-#pragma pack (0)
 
 class Mesh {
 private:
