@@ -1,20 +1,22 @@
-#include <cstdint>
 #include "mesh.hpp"
+
+#include <cstdint>
+#include <istream>
+
+using namespace std;
 
 Mesh::Mesh() {
     texture = 0;
 }
 
-bool Mesh::load(FILE *file, Texture *useTexture) {
+bool Mesh::load(istream &is, Texture *useTexture) {
     texture = useTexture;
 
-    uint64_t vertexCount = 0;
-    if (fread(&vertexCount, sizeof(uint64_t), 1, file) != 1) return false;
+    uint32_t vertexCount = 0;
+    is.read((char *) &vertexCount, sizeof(uint64_t));
 
     data.resize(vertexCount);
-    if (fread(&data[0], sizeof(Vertex), vertexCount, file) != vertexCount) {
-        return false;
-    }
+    is.read((char *) &data[0], sizeof(Vertex) * vertexCount);
 
     return true;
 }

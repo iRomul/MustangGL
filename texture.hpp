@@ -17,7 +17,7 @@ public:
         this->msg = msg;
     }
 
-    const char *what() const {
+    const char *what() const throw() {
         return msg.c_str();
     }
 };

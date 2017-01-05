@@ -21,8 +21,6 @@ if (INCLUDE_DISTRIB)
     add_subdirectory(distrib)
 endif (INCLUDE_DISTRIB)
 
-#set(WIN32_EXECUTABLE true)
-
 include_directories(
         external/glfw-3.1.2/include/
         external/glm-0.9.7.1/
@@ -45,7 +43,7 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp math_util.h)
+set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp math_util.h models/AbstractModel.h models/VehicleModel.cpp models/VehicleModel.h models/RoadModel.cpp models/RoadModel.h scene/MainScene.cpp scene/MainScene.h)
 add_executable(gl_test ${SOURCE_FILES})
 
 target_link_libraries(gl_test ${ALL_LIBS})

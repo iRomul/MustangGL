@@ -21,7 +21,7 @@ private:
 public:
     Mesh();
 
-    bool load(FILE *file, Texture *texture);
+    bool load(istream &is, Texture *texture);
 
     void draw();
 };
