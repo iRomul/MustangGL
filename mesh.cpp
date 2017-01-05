@@ -1,5 +1,5 @@
 
-#include "types.h"
+#include <cstdint>
 #include "mesh.hpp"
 
     Mesh::Mesh(){
@@ -9,8 +9,8 @@
     bool Mesh::load(FILE* file, Texture* useTexture){
         texture=useTexture;
 
-        u64 vertexCount=0;
-    	if( fread(&vertexCount, sizeof(u64), 1, file)!=1 ) return false;
+        uint64_t vertexCount=0;
+    	if( fread(&vertexCount, sizeof(uint64_t), 1, file)!=1 ) return false;
 
     	data.resize(vertexCount);
     	if( fread(&data[0], sizeof(Vertex), vertexCount, file)!=vertexCount ){

@@ -1,6 +1,5 @@
 #include "texture.hpp"
 #include <iostream>
-#include <windows.h>
 
 using namespace std;
 
@@ -22,14 +21,14 @@ bool Texture::_load(FILE *file) {
     }
 
     //строчка в изображении
-    u8 *row = (u8 *) malloc(header.biWidth * 3);
+    uint8_t *row = (uint8_t *) malloc(header.biWidth * 3);
 
     if (!row) {
         return false;
     }
 
     //все изображение
-    u8 *buffer = (u8 *) malloc(header.biWidth * header.biHeight * 3);
+    uint8_t *buffer = (uint8_t *) malloc(header.biWidth * header.biHeight * 3);
 
     if (!buffer) {
         free(row);
@@ -37,7 +36,7 @@ bool Texture::_load(FILE *file) {
     }
 
     //чтение картинки
-    for (u32 y = 0; y < header.biHeight; y++) {
+    for (uint32_t y = 0; y < header.biHeight; y++) {
         if (fread(row, 3, header.biWidth, file) != header.biWidth) {
             free(row);//прекрасные ++ без нормального RAII, охх, какой ужас. Насколько же идиотска идея С++, в котором нет RAII по "стандарту"
             free(buffer);//хоть STL есть, идея которой появилась у автора, когда он лежал в больнице после отравления =)
@@ -45,7 +44,7 @@ bool Texture::_load(FILE *file) {
         }
 
         //BGR -> RGB - изобретение мастдаевского гения
-        for (u32 x = 0; x < header.biWidth; x++) {
+        for (uint32_t x = 0; x < header.biWidth; x++) {
             buffer[y * header.biWidth * 3 + x * 3 + 0] = row[x * 3 + 2];
             buffer[y * header.biWidth * 3 + x * 3 + 1] = row[x * 3 + 1];
             buffer[y * header.biWidth * 3 + x * 3 + 2] = row[x * 3 + 0];

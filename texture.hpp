@@ -1,6 +1,5 @@
 #pragma once
 
-#include "types.h"
 #include <GL/gl.h>
 #include <stdio.h>
 #include <stdlib.h>

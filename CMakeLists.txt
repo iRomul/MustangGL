@@ -21,7 +21,7 @@ if (INCLUDE_DISTRIB)
     add_subdirectory(distrib)
 endif (INCLUDE_DISTRIB)
 
-set(WIN32_EXECUTABLE true)
+#set(WIN32_EXECUTABLE true)
 
 include_directories(
         external/glfw-3.1.2/include/
@@ -45,7 +45,7 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.h texture.hpp types.h window.cpp window.hpp math_util.h)
-add_executable(gl_test WIN32 ${SOURCE_FILES})
+set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.h texture.hpp math_util.h)
+add_executable(gl_test ${SOURCE_FILES})
 
 target_link_libraries(gl_test ${ALL_LIBS})

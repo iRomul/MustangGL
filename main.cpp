@@ -8,7 +8,6 @@
 
 #include "texture.hpp"
 #include "mesh.hpp"
-#include "window.hpp"
 #include "math_util.h"
 
 using namespace std;
@@ -49,13 +48,13 @@ enum ViewMode {
 ViewMode viewMode = OBSERVE;
 
 enum AnimationState {
-    Closed,
-    Opening,
-    Opened,
-    Closing,
+    DOOR_CLOSED,
+    DOOR_OPENING,
+    DOOR_OPENED,
+    DOOR_CLOSING,
 };
 
-AnimationState animState = Closed;
+AnimationState animState = DOOR_CLOSED;
 
 const float ANIM_MIN_DOOR_ROT = 0;
 const float ANIM_MAX_DOOR_ROT = 60;
@@ -66,6 +65,7 @@ float animDoorRot = ANIM_MIN_DOOR_ROT;
 //функция загружает модель из файла. Конвертер из COLLADA просто выплевывает меши в файл модели, а мы их загружаем
 bool loadModel() {
     FILE *file = fopen("track.mdl", "rb");
+
     if (!file) {
         cout << "can not read model file" << endl;
         return false;
@@ -181,69 +181,76 @@ void drawFloor() {
     glEnd();
 }
 
+GLFWwindow *window;
+
 void processKeys() {
-    if (keys[0x57]) {//w
+    auto isPressed = [](int key) -> bool { return glfwGetKey(window, key) == GLFW_PRESS; };
+
+    /* Перемещение машины по карте */
+    if (isPressed(GLFW_KEY_W)) {
         float step = -moveSpeed;
         modelPos = vec3(modelPos.x + sin(degreesToRadians(modelRot)) * step, 0,
                         modelPos.z + cos(degreesToRadians(modelRot)) * step);
         wheelAngle += animWheelAngle;//анимации колес
     }
 
-    if (keys[0x53]) {//s
+    if (isPressed(GLFW_KEY_S)) {
         float step = +moveSpeed;
         modelPos = vec3(modelPos.x + sin(degreesToRadians(modelRot)) * step, 0,
                         modelPos.z + cos(degreesToRadians(modelRot)) * step);
         wheelAngle -= animWheelAngle;
     }
 
-    if (keys[0x41]) {//a
+    if (isPressed(GLFW_KEY_A)) {
         modelRot += rotSpeed;
         wheelRotAngle = 30;
     }
 
-    if (keys[0x44]) {
+    if (isPressed(GLFW_KEY_D)) {
         modelRot -= rotSpeed;
         wheelRotAngle = -30;
     }
 
-    if (keys[0x31]) {
+    /* Изменение вида камеры */
+    if (isPressed(GLFW_KEY_1)) {
         viewMode = TOP;
     }
 
-    if (keys[0x32]) {
+    if (isPressed(GLFW_KEY_2)) {
         viewMode = FIXED_OBSERVE;
     }
 
-    if (keys[0x33]) {
+    if (isPressed(GLFW_KEY_3)) {
         viewMode = OBSERVE;
     }
 
-    if (keys[0x20]) {//space
-        if (animState == Closed) {
-            animState = Opening;
-        } else if (animState == Opened) {
-            animState = Closing;
+    /* Активация анимации */
+    if (isPressed(GLFW_KEY_F)) {
+        if (animState == DOOR_CLOSED) {
+            animState = DOOR_OPENING;
+        } else if (animState == DOOR_OPENED) {
+            animState = DOOR_CLOSING;
         }
     }
 }
 
 void animate() {
     switch (animState) {
-        case Opening:
+        case DOOR_OPENING:
             animDoorRot += ANIM_SPEED;
 
             if (animDoorRot > ANIM_MAX_DOOR_ROT) {
                 animDoorRot = ANIM_MAX_DOOR_ROT;
-                animState = Opened;
+                animState = DOOR_OPENED;
             }
 
             break;
-        case Closing:
+        case DOOR_CLOSING:
             animDoorRot -= ANIM_SPEED;
 
             if (animDoorRot < ANIM_MIN_DOOR_ROT) {
                 animDoorRot = ANIM_MIN_DOOR_ROT;
-                animState = Closed;
+                animState = DOOR_CLOSED;
             }
 
             break;
@@ -256,12 +263,19 @@ void drawScene() {
     glEnable(GL_LIGHTING);
 
     glMatrixMode(GL_PROJECTION);
+
+    int w, h;
+
+    glfwGetWindowSize(window, &w, &h);
+
+    GLfloat aspectRatio = (GLfloat) w / (GLfloat) h;
+
     if (viewMode == OBSERVE) {
-        mat4 projectionMatrix = perspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f) *
-                                lookAt(cameraPos, cameraTarget, vec3(0, 1, 0));
+        mat4 projectionMatrix =
+                perspective(45.0f, aspectRatio, 0.1f, 100.0f) * lookAt(cameraPos, cameraTarget, vec3(0, 1, 0));
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == TOP) {
-        mat4 projectionMatrix = perspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f) *
+        mat4 projectionMatrix = perspective(45.0f, aspectRatio, 0.1f, 100.0f) *
                                 lookAt(vec3(modelPos.x, 20.0f, modelPos.z - 2), modelPos, vec3(0, 0, 1));
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == FIXED_OBSERVE) {
@@ -275,7 +289,7 @@ void drawScene() {
 
         mat4 persectiveMatrix = perspective(
                 45.0f,
-                (GLfloat) windowWidth / (GLfloat) windowHeight,
+                aspectRatio,
                 0.1f,
                 100.0f
         );
@@ -300,14 +314,59 @@ void drawScene() {
     }
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nCmdShow) {
+int main() {
     std::cout.sync_with_stdio(false);
-// Create Our OpenGL Window
-    if (!createWindow("Mustang", 800, 600, false)) {
-        return 0;
+    // Initialise GLFW
+    if (!glfwInit()) {
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        getchar();
+        return -1;
     }
 
-    configGL();
+    glfwWindowHint(GLFW_SAMPLES, 8);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+    window = glfwCreateWindow(1024, 768, "Tutorial 0 - Keyboard and Mouse", NULL, NULL);
+    if (window == NULL) {
+        cerr << "Failed to open GLFW window." << endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // Initialize GLEW
+    if (glewInit() != GLEW_OK) {
+        cerr << "Failed to initialize GLEW" << endl;
+        getchar();
+        glfwTerminate();
+        return -1;
+    }
+
+    // Ensure we can capture the escape key being pressed below
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    // Hide the mouse and enable unlimited mouvement
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // Set the mouse at the center of the screen
+    glfwPollEvents();
+    glfwSetCursorPos(window, 1024 / 2, 768 / 2);
+
+    // #b1deff -- blue sky color
+    glClearColor(0.694f, 0.871f, 1.0f, 0.0f);
+
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
+
+    // Cull triangles which normal is not towards the camera
+    glEnable(GL_CULL_FACE);
+
+    glEnable(GL_TEXTURE_2D);
+    glShadeModel(GL_SMOOTH);
+    glClearDepth(1.0f);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glLightfv(GL_LIGHT1, GL_AMBIENT, &lightAmbient[0]);        // установим Ambient Light
     glLightfv(GL_LIGHT1, GL_DIFFUSE, &lightDiffuse[0]);        // установим Diffuse Light
@@ -334,35 +393,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine
         return 1;
     }
 
-    MSG msg;
-    bool shouldExit = false;
+    do {
+        processKeys();
 
-    while (!shouldExit) {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) { //Quit on X button
-                shouldExit = true;
-            } else {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-        } else {
-            if (active) {
-                if (keys[VK_ESCAPE]) { //Quit ion escape
-                    shouldExit = true;
-                } else {
-                    processKeys();
+        animate();
 
-                    animate();
+        drawScene();
 
-                    drawScene();
-                    SwapBuffers(hDC);                // Swap Buffers (Double Buffering)
-                }
-            }
-        }
-    }
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
 
-    // Shutdown
-    killWindow();                                    // Kill The Window
+    // Close OpenGL window and terminate GLFW
+    glfwTerminate();
 
     return 0;
 }
