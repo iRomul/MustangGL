@@ -99,17 +99,19 @@ void drawModel() {
     mat4 modelMatrix = mat4(1);
     modelMatrix = translate(modelMatrix, modelPos);
     modelMatrix = rotate(modelMatrix, degreesToRadians(modelRot), vec3(0, 1, 0));
-    glLoadMatrixf((float *) glm::value_ptr(modelMatrix));//отправляем матрицу OpenGL
-    body.draw();//рисуем корпус
+    //отправляем матрицу OpenGL
+    glLoadMatrixf(glm::value_ptr(modelMatrix));
+    //рисуем корпус
+    body.draw();
 
     //устанавливаем положение дверей
     //левая
     mat4 leftDoorMatrix = mat4(1);
     leftDoorMatrix = translate(leftDoorMatrix, vec3(-1.16, 1.05, -1.55));
     leftDoorMatrix = rotate(leftDoorMatrix, degreesToRadians(-animDoorRot), vec3(0, 1, 0));
-    leftDoorMatrix = modelMatrix *
-                     leftDoorMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
-    glLoadMatrixf((float *) glm::value_ptr(leftDoorMatrix));
+    //находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
+    leftDoorMatrix = modelMatrix * leftDoorMatrix;
+    glLoadMatrixf(glm::value_ptr(leftDoorMatrix));
     leftDoor.draw();
 
     //устанавливаем положение дверей
@@ -117,9 +119,9 @@ void drawModel() {
     mat4 rightDoorMatrix = mat4(1);
     rightDoorMatrix = translate(rightDoorMatrix, vec3(1.175, 1.05, -1.635));
     rightDoorMatrix = rotate(rightDoorMatrix, degreesToRadians(animDoorRot), vec3(0, 1, 0));
-    rightDoorMatrix = modelMatrix *
-                      rightDoorMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
-    glLoadMatrixf((float *) glm::value_ptr(rightDoorMatrix));
+    //находим матрицу, которая соделжит мировые координаты (из мир. координат модели и относительных колес)
+    rightDoorMatrix = modelMatrix * rightDoorMatrix;
+    glLoadMatrixf(glm::value_ptr(rightDoorMatrix));
     rightDoor.draw();
 
     //устанавливаем положение колес
@@ -127,12 +129,11 @@ void drawModel() {
     mat4 wheelMatrix = mat4(1);
     wheelMatrix = translate(wheelMatrix, vec3(-0.84, 0.45, -1.67));
     wheelMatrix = rotate(wheelMatrix, 3.14f + degreesToRadians(wheelRotAngle), vec3(0, 1, 0));
-    wheelMatrix = rotate(wheelMatrix, wheelAngle, vec3(1, 0, 0));//анимация
-    wheelMatrix = modelMatrix *
-                  wheelMatrix;//находим матрицу, которая соделжит мировые координаты(из мир. координат модели и относительных колес)
-    glLoadMatrixf((float *) glm::value_ptr(wheelMatrix));
+    wheelMatrix = rotate(wheelMatrix, wheelAngle, vec3(1, 0, 0)); //анимация
+    //находим матрицу, которая соделжит мировые координаты (из мир. координат модели и относительных колес)
+    wheelMatrix = modelMatrix * wheelMatrix;
+    glLoadMatrixf(glm::value_ptr(wheelMatrix));
     wheel.draw();
-
 
     //заднее левое
     wheelMatrix = mat4(1);
@@ -140,7 +141,7 @@ void drawModel() {
     wheelMatrix = rotate(wheelMatrix, 3.14f, vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, wheelAngle, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
-    glLoadMatrixf((float *) glm::value_ptr(wheelMatrix));
+    glLoadMatrixf(glm::value_ptr(wheelMatrix));
     wheel.draw();
 
     //переднее правое
@@ -149,7 +150,7 @@ void drawModel() {
     wheelMatrix = rotate(wheelMatrix, degreesToRadians(wheelRotAngle), vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, -wheelAngle, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
-    glLoadMatrixf((float *) glm::value_ptr(wheelMatrix));
+    glLoadMatrixf(glm::value_ptr(wheelMatrix));
     wheel.draw();
 
     //заднее правое
@@ -157,7 +158,7 @@ void drawModel() {
     wheelMatrix = translate(wheelMatrix, vec3(0.84, 0.45, 1.62));
     wheelMatrix = rotate(wheelMatrix, -wheelAngle, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
-    glLoadMatrixf((float *) glm::value_ptr(wheelMatrix));
+    glLoadMatrixf(glm::value_ptr(wheelMatrix));
     wheel.draw();
 }
 
@@ -256,11 +257,11 @@ void drawScene() {
     if (viewMode == OBSERVE) {
         mat4 projectionMatrix = perspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f) *
                                 lookAt(cameraPos, cameraTarget, vec3(0, 1, 0));
-        glLoadMatrixf((float *) glm::value_ptr(projectionMatrix));
+        glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == TOP) {
         mat4 projectionMatrix = perspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f) *
                                 lookAt(vec3(modelPos.x, 20.0f, modelPos.z - 2), modelPos, vec3(0, 0, 1));
-        glLoadMatrixf((float *) glm::value_ptr(projectionMatrix));
+        glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == FIXED_OBSERVE) {
         //берем матрицу модели
         mat4 modelMatrix = mat4(1);
@@ -280,12 +281,12 @@ void drawScene() {
         mat4 projectionMatrix =
                 persectiveMatrix * lookAt(glm::vec3(4, 3, 3), vec3(modelPos.x, 2.0, modelPos.z), vec3(0, 1, 0));
 
-        glLoadMatrixf((float *) glm::value_ptr(projectionMatrix));
+        glLoadMatrixf(glm::value_ptr(projectionMatrix));
     }
 
     glMatrixMode(GL_MODELVIEW);
     mat4 matrix = scale(mat4(1), vec3(6, 1, 6));
-    glLoadMatrixf((float *) glm::value_ptr(matrix));
+    glLoadMatrixf(glm::value_ptr(matrix));
     drawFloor();
 
     drawModel();
@@ -307,7 +308,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine
 
     glLightfv(GL_LIGHT1, GL_AMBIENT, &lightAmbient[0]);        // установим Ambient Light
     glLightfv(GL_LIGHT1, GL_DIFFUSE, &lightDiffuse[0]);        // установим Diffuse Light
-    glLightfv(GL_LIGHT1, GL_POSITION, (float *) glm::value_ptr(lightPosition));    // установим позицию The Light
+    glLightfv(GL_LIGHT1, GL_POSITION, glm::value_ptr(lightPosition));    // установим позицию The Light
     glEnable(GL_LIGHT1);                                // включим
 
 //load textures
