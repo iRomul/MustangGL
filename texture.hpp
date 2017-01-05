@@ -4,41 +4,22 @@
 #include <GL/gl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "windows.h"
 
-#pragma pack (1)
-class BMPheader{
-	public:
+const WORD BMP_FILE_SIGNATURE = 0x4D42;
 
-      u16   bfType;
-      i32    bfSize;
-      i32    bfReserved;
-      i32    bfOffBits;
-      u32    biSize;
-      u32    biWidth;
-      u32    biHeight;
-      u16   biPlanes;
-      u16   biBitCount;
-      u32    biCompression;
-      u32    biSizeImage;
-      u32    biXPelsPerMeter;
-      u32    biYPelsPerMeter;
-      u32    biClrUsed;
-      u32    biClrImportant;
-};
-#pragma pack (0)
-
-class Texture{
+class Texture {
 private:
-	GLuint glTexture;
+    GLuint glTexture;
 
-	bool _load(FILE* file);
+    bool _load(FILE *file);
 
 public:
-	Texture() ;
+    Texture();
 
-	bool load(const char* fileName);
+    bool load(const char *fileName);
 
-	void bind();
+    void bind();
 
-	~Texture();
+    ~Texture();
 };

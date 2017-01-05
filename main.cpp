@@ -1,8 +1,10 @@
-#include <stdio.h>
 #include <vector>
+#include <iostream>
 
-#include "glm/glm.hpp"
-#include "glm/ext.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 #include "texture.hpp"
 #include "mesh.hpp"
@@ -65,27 +67,27 @@ float animDoorRot = ANIM_MIN_DOOR_ROT;
 bool loadModel() {
     FILE *file = fopen("track.mdl", "rb");
     if (!file) {
-        printf("can not read model file\n");
+        cout << "can not read model file" << endl;
         return false;
     }
 
     if (!rightDoor.load(file, &tex1)) {
-        printf("Can not load rightDoor mesh");
+        cout << "Can not load rightDoor mesh" << endl;
         return false;
     }
 
     if (!body.load(file, &tex1)) {
-        printf("Can not load body mesh");
+        cout << "Can not load body mesh" << endl;
         return false;
     }
 
     if (!wheel.load(file, &tex2)) {
-        printf("Can not load wheel mesh");
+        cout << "Can not load wheel mesh" << endl;
         return false;
     }
 
     if (!leftDoor.load(file, &tex1)) {
-        printf("Can not load leftDoor mesh");
+        cout << "Can not load leftDoor mesh" << endl;
         return false;
     }
 
@@ -299,6 +301,7 @@ void drawScene() {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nCmdShow) {
+    std::cout.sync_with_stdio(false);
 // Create Our OpenGL Window
     if (!createWindow("Mustang", 800, 600, false)) {
         return 0;
@@ -313,21 +316,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine
 
 //load textures
     if (!tex1.load("body.bmp")) {
-        printf("can not load body.bmp");
+        cout << "can not load body.bmp" << endl;
         return 1;
     }
     if (!tex2.load("wheel.bmp")) {
-        printf("can not load wheel.bmp");
+        cout << "can not load wheel.bmp" << endl;
         return 1;
     }
     if (!tex3.load("ground.bmp")) {
-        printf("can not load ground.bmp");
+        cout << "can not load ground.bmp" << endl;
         return 1;
     }
 
 //load model
     if (!loadModel()) {
-        printf("Can not load model");
+        cout << "Can not load model" << endl;
         return 1;
     }
 
