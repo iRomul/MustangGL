@@ -1,8 +1,11 @@
 #include "MainScene.h"
 
-#include <glm/ext.hpp>
-
 #include "math_util.h"
+#include "SceneLight.h"
+#include "SceneFog.h"
+#include "SceneColors.h"
+
+#include <glm/ext.hpp>
 
 using namespace std;
 using namespace glm;
@@ -10,16 +13,20 @@ using namespace glm;
 ViewMode viewMode = OBSERVE;
 AnimationState animState = DOOR_CLOSED;
 
-MainScene::MainScene(GLFWwindow* window) {
+MainScene::MainScene(GLFWwindow *window) {
     this->window = window;
 
-    glLightfv(GL_LIGHT1, GL_AMBIENT, &lightAmbient[0]);        // установим Ambient Light
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, &lightDiffuse[0]);        // установим Diffuse Light
-    glLightfv(GL_LIGHT1, GL_POSITION, glm::value_ptr(lightPosition));    // установим позицию The Light
-    glEnable(GL_LIGHT1);                                // включим
+    SceneLight light1(GL_LIGHT1, SC_PINK, SC_DARK_BLUE, vec4(0.0f, 4.0f, 0.0f, 1.0f));
+    light1.enable();
+
+    SceneLight light2(GL_LIGHT2, SC_WHITE, SC_WHITE, vec4(4.0f, -4.0f, 0.0f, 1.0f));
+    light2.enable();
 
     vec3 cameraPos = vec3(6, 6, 6);
     vec3 cameraTarget = vec3(0, 0, 0);
+
+    SceneFog fog(SC_LIGHT_GREY);
+    fog.enable();
 
     model.load();
     road.load();
@@ -44,16 +51,14 @@ void MainScene::draw() {
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == TOP) {
         mat4 projectionMatrix = perspective(45.0f, aspectRatio, 0.1f, 100.0f) *
-                                lookAt(vec3(model.modelPos.x, 20.0f, model.modelPos.z - 2), model.modelPos, vec3(0, 0, 1));
+                                lookAt(vec3(model.modelPos.x, 20.0f, model.modelPos.z - 2), model.modelPos,
+                                       vec3(0, 0, 1));
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     } else if (viewMode == FIXED_OBSERVE) {
         //берем матрицу модели
         mat4 modelMatrix = mat4(1);
         modelMatrix = translate(modelMatrix, model.modelPos);
         modelMatrix = rotate(modelMatrix, degreesToRadians(model.modelRot), vec3(0, 1, 0));
-
-        //устанавливаем камеру относительно модели и получим ее мировые координаты
-        //vec3 cameraPos = modelMatrix * vec4(0.0, 5.0, 8.0, 1.0); //w будет 1
 
         mat4 perspectiveMatrix = perspective(
                 45.0f,
@@ -63,7 +68,8 @@ void MainScene::draw() {
         );
 
         mat4 projectionMatrix =
-                perspectiveMatrix * lookAt(glm::vec3(4, 3, 3), vec3(model.modelPos.x, 2.0, model.modelPos.z), vec3(0, 1, 0));
+                perspectiveMatrix *
+                lookAt(glm::vec3(4, 3, 3), vec3(model.modelPos.x, 2.0, model.modelPos.z), vec3(0, 1, 0));
 
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     }

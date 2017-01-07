@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
-#include <scene/MainScene.h>
+#include <scenes/MainScene.h>
 
 using namespace std;
 using namespace glm;

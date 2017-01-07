@@ -43,7 +43,7 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp math_util.h models/AbstractModel.h models/VehicleModel.cpp models/VehicleModel.h models/RoadModel.cpp models/RoadModel.h scene/MainScene.cpp scene/MainScene.h scene/Light.cpp scene/Light.h)
+set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp math_util.h models/AbstractModel.h models/VehicleModel.cpp models/VehicleModel.h models/RoadModel.cpp models/RoadModel.h scenes/MainScene.cpp scenes/MainScene.h scenes/SceneLight.cpp scenes/SceneLight.h scenes/SceneFog.cpp scenes/SceneFog.h scenes/SceneColors.h)
 add_executable(mustang_gl ${SOURCE_FILES})
 
 target_link_libraries(mustang_gl ${ALL_LIBS})
