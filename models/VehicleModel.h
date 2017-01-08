@@ -16,12 +16,11 @@ public:
     Mesh rightDoor;
 
     glm::vec3 modelPos = glm::vec3(0, 0, 0);
+    glm::vec3 forward = glm::vec3(0, 0, 1);
     float modelRot = 0;
     float wheelAngle = 0;
     int32_t wheelRotAngle = 0;
 
-    const float animWheelAngle = 0.1;
-    const float moveSpeed = 0.05;
     const float rotSpeed = 0.5;
 
     const float ANIM_MIN_DOOR_ROT = 0;

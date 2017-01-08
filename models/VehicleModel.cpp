@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <math_util.h>
+#include "math_util.h"
 
 #include <glm/ext.hpp>
 
@@ -13,6 +13,8 @@ VehicleModel::VehicleModel() :
         bodyTexture("body.bmp"),
         wheelTexture("wheel.bmp") {
 
+
+    modelPos = vec3(0, 0, 0);
 }
 
 void VehicleModel::load() {
@@ -52,7 +54,7 @@ void VehicleModel::draw() {
 //устанавливаем положение модели
     mat4 modelMatrix = mat4(1);
     modelMatrix = translate(modelMatrix, modelPos);
-    modelMatrix = rotate(modelMatrix, degreesToRadians(modelRot), vec3(0, 1, 0));
+    modelMatrix = rotate(modelMatrix, modelRot, vec3(0, 1, 0));
     //отправляем матрицу OpenGL
     glLoadMatrixf(glm::value_ptr(modelMatrix));
     //рисуем корпус

@@ -88,7 +88,48 @@ void MainScene::draw() {
     }
 }
 
+static double lastTime = 0.0;
+static vec3 velocity_vector(0.0, 0.0, 0.0);
+
+double currentTime = glfwGetTime();
+
+float acceleration_input = 0.0;
+float rotation_input = 0.0;
+
+static bool isLogMode = false;
+
 void MainScene::animate() {
+    double currentTime = glfwGetTime();
+    double elapsed = currentTime - lastTime;
+
+    const float ACCELERATION_FACTOR = 2.0;
+
+    float rot_angle = 2.0f * static_cast<float>(elapsed) * rotation_input;
+    rot_angle *= (float)length(velocity_vector) / 10;
+
+    model.forward = rotateY(model.forward, rot_angle);
+    model.modelRot += rot_angle;
+
+    vec3 acceleration = model.forward * acceleration_input * ACCELERATION_FACTOR;
+
+    vec3 lateral_velocity;
+
+    float current_speed = (float) length(velocity_vector);
+    velocity_vector += acceleration * elapsed;
+
+    model.modelPos += velocity_vector * elapsed;
+    model.wheelAngle += current_speed * elapsed * 5;
+
+    if (isLogMode) {
+        cout << "Forward Vec: " << to_string(model.forward) << endl;
+        cout << "Acceleration Vec: " << to_string(acceleration) << endl;
+        cout << "Velocity Vec: " << to_string(velocity_vector) << endl;
+        cout << "Position Vec: " << to_string(model.modelPos) << endl;
+        cout << "Acceleration input: " << acceleration_input << endl;
+        cout << "Speed: " << current_speed << endl;
+        cout << "Rotation angle: " << rot_angle << endl;
+    }
+
     switch (animState) {
         case DOOR_OPENING:
             model.animDoorRot += model.ANIM_SPEED;
@@ -109,34 +150,39 @@ void MainScene::animate() {
 
             break;
     }
+
+    lastTime = currentTime;
+    acceleration_input = 0.0;
+    rotation_input = 0.0;
 }
 
 void MainScene::processKeys() {
     auto isPressed = [this](int key) -> bool { return glfwGetKey(window, key) == GLFW_PRESS; };
 
-    /* Перемещение машины по карте */
     if (isPressed(GLFW_KEY_W)) {
-        float step = -model.moveSpeed;
-        model.modelPos = vec3(model.modelPos.x + sin(degreesToRadians(model.modelRot)) * step, 0,
-                              model.modelPos.z + cos(degreesToRadians(model.modelRot)) * step);
-        model.wheelAngle += model.animWheelAngle;//анимации колес
+        acceleration_input = -1.0f;
     }
 
     if (isPressed(GLFW_KEY_S)) {
-        float step = +model.moveSpeed;
-        model.modelPos = vec3(model.modelPos.x + sin(degreesToRadians(model.modelRot)) * step, 0,
-                              model.modelPos.z + cos(degreesToRadians(model.modelRot)) * step);
-        model.wheelAngle -= model.animWheelAngle;
+        acceleration_input = 1.0f;
     }
 
     if (isPressed(GLFW_KEY_A)) {
-        model.modelRot += model.rotSpeed;
         model.wheelRotAngle = 30;
+        rotation_input = 1.0f;
     }
 
     if (isPressed(GLFW_KEY_D)) {
-        model.modelRot -= model.rotSpeed;
         model.wheelRotAngle = -30;
+        rotation_input = -1.0f;
+    }
+
+    if (isPressed(GLFW_KEY_V)) {
+        isLogMode = true;
+    }
+
+    if (isPressed(GLFW_KEY_B)) {
+        isLogMode = false;
     }
 
     /* Изменение вида камеры */
