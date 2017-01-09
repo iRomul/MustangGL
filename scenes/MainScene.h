@@ -12,13 +12,6 @@ enum ViewMode {
     FIXED_OBSERVE,//вид как в РПГшке
 };
 
-enum AnimationState {
-    DOOR_CLOSED,
-    DOOR_OPENING,
-    DOOR_OPENED,
-    DOOR_CLOSING,
-};
-
 class MainScene {
     GLFWwindow* window;
 

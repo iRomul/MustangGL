@@ -1,9 +1,61 @@
 #pragma once
 
-#include <texture.hpp>
-#include <mesh.hpp>
 #include <glm/glm.hpp>
+
+#include "texture.hpp"
+#include "mesh.hpp"
+#include "math_util.h"
 #include "AbstractModel.h"
+
+const float ACCELERATION_FACTOR = 15.0f;
+const float SPEED_CUTOFF_THRESHOLD = 0.25f;
+
+const float BACKWARD_FRICTION_FACTOR = 0.999f;
+const float WHEEL_ROTATION_FACTOR = 3.5f;
+
+const float DRIVETRAIN_ROTATION_SPEED = degreesToRadians(28); // degree per second
+const float DRIVETRAIN_MAX_ROTATION = degreesToRadians(30);
+const float DRIVETRAIN_TO_BODY_FACTOR = 300.0f;
+
+struct VehicleModelAnimation {
+    enum class DoorState {
+        DOOR_CLOSED,
+        DOOR_OPENING,
+        DOOR_OPENED,
+        DOOR_CLOSING,
+    };
+
+    glm::vec3 velocityVector;
+
+    DoorState doorState = DoorState::DOOR_CLOSED;
+
+    float accelerationInput = 0.0;
+    float rotationInput = 0.0;
+
+    VehicleModelAnimation() : velocityVector(0.0f, 0.0f, 0.0f) {
+    }
+
+    void setAccelerationInput(float amount) {
+        accelerationInput = amount;
+    }
+
+    void setRotationInput(float amount) {
+        rotationInput = amount;
+    }
+
+    void resetInputs() {
+        accelerationInput = 0.0f;
+        rotationInput = 0.0f;
+    }
+
+    void switchDoor() {
+        if (doorState == DoorState::DOOR_CLOSED) {
+            doorState = DoorState::DOOR_OPENING;
+        } else if (doorState == DoorState::DOOR_OPENED) {
+            doorState = DoorState::DOOR_CLOSING;
+        }
+    }
+};
 
 class VehicleModel : public AbstractModel {
 public:
@@ -15,13 +67,14 @@ public:
     Mesh leftDoor;
     Mesh rightDoor;
 
-    glm::vec3 modelPos = glm::vec3(0, 0, 0);
-    glm::vec3 forward = glm::vec3(0, 0, 1);
-    float modelRot = 0;
-    float wheelAngle = 0;
-    int32_t wheelRotAngle = 0;
+    VehicleModelAnimation animation;
 
-    const float rotSpeed = 0.5;
+    glm::vec3 forward = glm::vec3(0, 0, 1);
+    glm::vec3 position = glm::vec3(0, 0, 0);
+    float rotation = 0.0f;
+
+    float wheelRotation = 0.0f;
+    float drivetrainRotation = 0.0f;
 
     const float ANIM_MIN_DOOR_ROT = 0;
     const float ANIM_MAX_DOOR_ROT = 60;
@@ -32,4 +85,5 @@ public:
     VehicleModel();
     void load() override;
     void draw() override;
+    void animate(double elapsed);
 };

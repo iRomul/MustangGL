@@ -14,8 +14,7 @@ constexpr float degreesToRadians(const float angle) {
 
 template <typename T>
 T fpnormalize(T val) {
-    int val_class = fpclassify(val);
-    if (isnormal(val_class)) {
+    if (isnormal(val)) {
         return val;
     } else {
         return 0;
@@ -33,4 +32,9 @@ GLM_FUNC_QUALIFIER vecType<T, P> normalize_safe(vecType<T, P> const & x)
     r.z = fpnormalize(r.z);
 
     return r;
+}
+
+template <typename T, typename E>
+bool fuzzEqual(T a, T b, E epsilon) {
+    return abs(a - b) <= ( (abs(a) < abs(b) ? abs(b) : abs(a)) * epsilon);
 }

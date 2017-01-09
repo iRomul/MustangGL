@@ -82,15 +82,6 @@ namespace detail
 	};
 }//namespace detail
 
-	// length
-	template <typename genType>
-	GLM_FUNC_QUALIFIER genType length(genType x)
-	{
-		GLM_STATIC_ASSERT(std::numeric_limits<genType>::is_iec559, "'length' only accept floating-point inputs");
-
-		return abs(x);
-	}
-
 	template <typename T, precision P, template <typename, precision> class vecType>
 	GLM_FUNC_QUALIFIER T length(vecType<T, P> const & v)
 	{
