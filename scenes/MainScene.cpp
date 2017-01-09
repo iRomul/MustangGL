@@ -1,6 +1,5 @@
 #include "MainScene.h"
 
-#include "math_util.h"
 #include "SceneLight.h"
 #include "SceneFog.h"
 #include "SceneColors.h"
@@ -10,7 +9,7 @@
 using namespace std;
 using namespace glm;
 
-ViewMode viewMode = OBSERVE;
+ViewMode viewMode = FIXED_SCENE_OBSERVE;
 
 MainScene::MainScene(GLFWwindow *window) {
     this->window = window;
@@ -44,7 +43,7 @@ void MainScene::draw() {
 
     GLfloat aspectRatio = (GLfloat) w / (GLfloat) h;
 
-    if (viewMode == OBSERVE) {
+    if (viewMode == FIXED_SCENE_OBSERVE) {
         mat4 projectionMatrix =
                 perspective(45.0f, aspectRatio, 0.1f, 100.0f) * lookAt(cameraPos, cameraTarget, vec3(0, 1, 0));
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
@@ -53,7 +52,7 @@ void MainScene::draw() {
                                 lookAt(vec3(model.position.x, 20.0f, model.position.z - 2), model.position,
                                        vec3(0, 0, 1));
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
-    } else if (viewMode == FIXED_OBSERVE) {
+    } else if (viewMode == FOLLOWING) {
         //берем матрицу модели
         mat4 modelMatrix = mat4(1);
         modelMatrix = translate(modelMatrix, model.position);
@@ -66,9 +65,11 @@ void MainScene::draw() {
                 100.0f
         );
 
+        vec3 backPosition = vec3(model.forward.x - 2.5f, 4.0f, model.forward.z + 8.0f);
+        vec3 cameraPosition = rotateY(backPosition, model.rotation) + model.position;
         mat4 projectionMatrix =
                 perspectiveMatrix *
-                lookAt(glm::vec3(4, 3, 3), vec3(model.position.x, 2.0, model.position.z), vec3(0, 1, 0));
+                lookAt(cameraPosition, vec3(model.position.x, 2.0, model.position.z), vec3(0, 1, 0));
 
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     }
@@ -80,8 +81,6 @@ void MainScene::draw() {
     road.draw();
     model.draw();
 }
-
-static double lastTime = 0.0;
 
 void MainScene::animate() {
     double currentTime = glfwGetTime();
@@ -117,11 +116,11 @@ void MainScene::processKeys() {
     }
 
     if (isPressed(GLFW_KEY_2)) {
-        viewMode = FIXED_OBSERVE;
+        viewMode = FOLLOWING;
     }
 
     if (isPressed(GLFW_KEY_3)) {
-        viewMode = OBSERVE;
+        viewMode = FIXED_SCENE_OBSERVE;
     }
 
     /* Активация анимации */

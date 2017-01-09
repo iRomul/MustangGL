@@ -8,8 +8,8 @@
 
 enum ViewMode {
     TOP,//вид сверху
-    OBSERVE,//вид откуда-то с башни
-    FIXED_OBSERVE,//вид как в РПГшке
+    FIXED_SCENE_OBSERVE,//вид откуда-то с башни
+    FOLLOWING,//вид как в РПГшке
 };
 
 class MainScene {
@@ -20,6 +20,8 @@ class MainScene {
 
     glm::vec3 cameraPos = glm::vec3(6, 6, 6);
     glm::vec3 cameraTarget = glm::vec3(0, 0, 0);
+
+    double lastTime = 0.0;
 
 public:
     MainScene(GLFWwindow* window);
