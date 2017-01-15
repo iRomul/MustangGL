@@ -5,12 +5,7 @@
 
 using namespace std;
 
-Mesh::Mesh() {
-    texture = 0;
-}
-
-bool Mesh::load(istream &is, Texture *useTexture) {
-    texture = useTexture;
+bool Mesh::load(istream &is) {
 
     uint32_t vertexCount = 0;
     is.read((char *) &vertexCount, sizeof(uint64_t));
@@ -23,13 +18,6 @@ bool Mesh::load(istream &is, Texture *useTexture) {
 
 //рисуем меш
 void Mesh::draw() {
-    if (texture != 0) {
-        //биндим текстуру
-        texture->bind();
-    } else {
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
     glBegin(GL_TRIANGLES);
 
     glColor3f(1.0f, 1.0f, 1.0f);

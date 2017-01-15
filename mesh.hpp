@@ -17,11 +17,8 @@ struct alignas(1) Vertex {
 class Mesh {
 private:
     vector<Vertex> data;
-    Texture *texture;
 public:
-    Mesh();
-
-    bool load(istream &is, Texture *texture);
+    bool load(istream &is);
 
     void draw();
 };

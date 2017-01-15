@@ -8,7 +8,7 @@
 #include "AbstractModel.h"
 
 const float ACCELERATION_FACTOR = 15.0f;
-const float SPEED_CUTOFF_THRESHOLD = 0.25f;
+const float SPEED_CUTOFF_THRESHOLD = 0.2f;
 
 const float BACKWARD_FRICTION_FACTOR = 0.999f;
 const float WHEEL_ROTATION_FACTOR = 3.5f;
@@ -59,9 +59,6 @@ struct VehicleModelAnimation {
 
 class VehicleModel : public AbstractModel {
 public:
-    Texture bodyTexture;
-    Texture wheelTexture;
-
     Mesh body;
     Mesh wheel;
     Mesh leftDoor;

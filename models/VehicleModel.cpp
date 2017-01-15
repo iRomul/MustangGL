@@ -10,42 +10,34 @@
 using namespace std;
 using namespace glm;
 
-VehicleModel::VehicleModel() :
-        bodyTexture("body.bmp"),
-        wheelTexture("wheel.bmp") {
-
-
+VehicleModel::VehicleModel() {
     position = vec3(0, 0, 0);
 }
 
 void VehicleModel::load() {
     //load textures
-    if (!bodyTexture.load() || !wheelTexture.load()) {
-        cerr << "Can't load texture bitmap file" << endl;
-        exit(EXIT_FAILURE);
-    }
 
     ifstream modelFile;
     modelFile.exceptions(ios::failbit | ios::badbit);
     modelFile.open("track.mdl", ios::in | ios::binary);
 
     // TODO: бросать исключения
-    if (!rightDoor.load(modelFile, &bodyTexture)) {
+    if (!rightDoor.load(modelFile)) {
         cerr << "Can not load rightDoor mesh" << endl;
 //        return false;
     }
 
-    if (!body.load(modelFile, &bodyTexture)) {
+    if (!body.load(modelFile)) {
         cerr << "Can not load body mesh" << endl;
 //        return false;
     }
 
-    if (!wheel.load(modelFile, &wheelTexture)) {
+    if (!wheel.load(modelFile)) {
         cerr << "Can not load wheel mesh" << endl;
 //        return false;
     }
 
-    if (!leftDoor.load(modelFile, &bodyTexture)) {
+    if (!leftDoor.load(modelFile)) {
         cerr << "Can not load leftDoor mesh" << endl;
 //        return false;
     }
@@ -53,6 +45,7 @@ void VehicleModel::load() {
 
 void VehicleModel::draw() {
 //устанавливаем положение модели
+    glBindTexture(GL_TEXTURE_2D, 0);
     mat4 modelMatrix = mat4(1);
     modelMatrix = translate(modelMatrix, position);
     modelMatrix = rotate(modelMatrix, rotation, vec3(0, 1, 0));
@@ -144,8 +137,11 @@ void VehicleModel::animate(double elapsed) {
     // FIXME: Исправить реальное направление вектора forward
     int directionSign = angle(forward, normalize_safe(animation.velocityVector)) >= degreesToRadians(90) ? 1 : -1;
 
+    float deviationAngle = length(cross(directionSign * forward, normalize(animation.velocityVector)));
+    deviationAngle = fpnormalize(deviationAngle);
+
     float relativeRotation = drivetrainRotation / DRIVETRAIN_TO_BODY_FACTOR;
-    relativeRotation *= directionSign * length(animation.velocityVector) / 10;
+    relativeRotation *= directionSign * length(animation.velocityVector) / 15;
 
     forward = rotateY(forward, relativeRotation);
 
@@ -153,6 +149,9 @@ void VehicleModel::animate(double elapsed) {
 
     vec3 backwardFriction = -animation.velocityVector * BACKWARD_FRICTION_FACTOR;
     animation.velocityVector += (backwardFriction) * elapsed;
+    auto da = 1 - pow(deviationAngle, 13.0f) / 1.5f;
+    cout << da << endl;
+    animation.velocityVector *= 1 - pow(deviationAngle, 13.0f) / 1.5f;
 
     float currentSpeed = length(animation.velocityVector);
     if (currentSpeed < SPEED_CUTOFF_THRESHOLD && animation.accelerationInput == 0.0) {
