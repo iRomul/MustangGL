@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "math_util.h"
+#include "utilities.h"
 
 #include <glm/ext.hpp>
 #include <iomanip>
@@ -21,33 +21,39 @@ void VehicleModel::load() {
     modelFile.exceptions(ios::failbit | ios::badbit);
     modelFile.open("track.mdl", ios::in | ios::binary);
 
-    // TODO: бросать исключения
+    ifstream wheelModel("ms_wheel.obj");
+    ifstream bodyModel("ms_body.obj");
+
+    if (!wheelModel || !bodyModel) {
+        cerr << "Can't open model file" << endl;
+        throw runtime_error("Model file is unavailable");
+    }
+
     if (!rightDoor.load(modelFile)) {
         cerr << "Can not load rightDoor mesh" << endl;
-//        return false;
     }
 
-    if (!body.load(modelFile)) {
+    if (!body.loadObj(bodyModel)) {
         cerr << "Can not load body mesh" << endl;
-//        return false;
+        throw runtime_error("Body model parse failed");
     }
 
-    if (!wheel.load(modelFile)) {
+    if (!wheel.loadObj(wheelModel)) {
         cerr << "Can not load wheel mesh" << endl;
-//        return false;
+        throw runtime_error("Wheel model parse failed");
     }
-
-    if (!leftDoor.load(modelFile)) {
-        cerr << "Can not load leftDoor mesh" << endl;
-//        return false;
-    }
+//
+//    if (!leftDoor.load(modelFile)) {
+//        cerr << "Can not load leftDoor mesh" << endl;
+////        return false;
+//    }
 }
 
 void VehicleModel::draw() {
-//устанавливаем положение модели
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+
     mat4 modelMatrix = mat4(1);
-    modelMatrix = translate(modelMatrix, position);
+    modelMatrix = translate(modelMatrix, position + vec3(0, 2, 0));
     modelMatrix = rotate(modelMatrix, rotation, vec3(0, 1, 0));
     //отправляем матрицу OpenGL
     glLoadMatrixf(glm::value_ptr(modelMatrix));
@@ -74,10 +80,15 @@ void VehicleModel::draw() {
     glLoadMatrixf(glm::value_ptr(rightDoorMatrix));
     rightDoor.draw();
 
+    const float WHEEL_Y_OFFSET = -0.6f;
+    const float WHEEL_FRONT_Z_OFFSET = -2.15f;
+    const float WHEEL_REAR_Z_OFFSET = 1.75f;
+    const float WHEEL_X_OFFSET = 1.07f;
+
     //устанавливаем положение колес
     //переднее левое
     mat4 wheelMatrix = mat4(1);
-    wheelMatrix = translate(wheelMatrix, vec3(-0.84, 0.45, -1.67));
+    wheelMatrix = translate(wheelMatrix, vec3(-WHEEL_X_OFFSET, WHEEL_Y_OFFSET, WHEEL_FRONT_Z_OFFSET));
     wheelMatrix = rotate(wheelMatrix, 3.14f + drivetrainRotation, vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, wheelRotation, vec3(1, 0, 0)); //анимация
     //находим матрицу, которая соделжит мировые координаты (из мир. координат модели и относительных колес)
@@ -87,7 +98,7 @@ void VehicleModel::draw() {
 
     //заднее левое
     wheelMatrix = mat4(1);
-    wheelMatrix = translate(wheelMatrix, vec3(-0.84, 0.45, 1.62));
+    wheelMatrix = translate(wheelMatrix, vec3(-WHEEL_X_OFFSET, WHEEL_Y_OFFSET, WHEEL_REAR_Z_OFFSET));
     wheelMatrix = rotate(wheelMatrix, 3.14f, vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, wheelRotation, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
@@ -96,7 +107,7 @@ void VehicleModel::draw() {
 
     //переднее правое
     wheelMatrix = mat4(1);
-    wheelMatrix = translate(wheelMatrix, vec3(0.84, 0.45, -1.67));
+    wheelMatrix = translate(wheelMatrix, vec3(WHEEL_X_OFFSET, WHEEL_Y_OFFSET, WHEEL_FRONT_Z_OFFSET));
     wheelMatrix = rotate(wheelMatrix, drivetrainRotation, vec3(0, 1, 0));
     wheelMatrix = rotate(wheelMatrix, -wheelRotation, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
@@ -105,11 +116,13 @@ void VehicleModel::draw() {
 
     //заднее правое
     wheelMatrix = mat4(1);
-    wheelMatrix = translate(wheelMatrix, vec3(0.84, 0.45, 1.62));
+    wheelMatrix = translate(wheelMatrix, vec3(WHEEL_X_OFFSET, WHEEL_Y_OFFSET, WHEEL_REAR_Z_OFFSET));
     wheelMatrix = rotate(wheelMatrix, -wheelRotation, vec3(1, 0, 0));
     wheelMatrix = modelMatrix * wheelMatrix;
     glLoadMatrixf(glm::value_ptr(wheelMatrix));
     wheel.draw();
+
+    glEnable(GL_TEXTURE_2D);
 }
 
 void VehicleModel::animate(double elapsed) {
@@ -149,8 +162,6 @@ void VehicleModel::animate(double elapsed) {
 
     vec3 backwardFriction = -animation.velocityVector * BACKWARD_FRICTION_FACTOR;
     animation.velocityVector += (backwardFriction) * elapsed;
-    auto da = 1 - pow(deviationAngle, 13.0f) / 1.5f;
-    cout << da << endl;
     animation.velocityVector *= 1 - pow(deviationAngle, 13.0f) / 1.5f;
 
     float currentSpeed = length(animation.velocityVector);

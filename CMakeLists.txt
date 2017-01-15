@@ -36,6 +36,7 @@ set(
 )
 
 add_definitions(
+        -std=c++0x
         -DTW_STATIC
         -DTW_NO_LIB_PRAGMA
         -DTW_NO_DIRECT3D
@@ -43,7 +44,7 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp math_util.h models/AbstractModel.h models/VehicleModel.cpp models/VehicleModel.h models/RoadModel.cpp models/RoadModel.h scenes/MainScene.cpp scenes/MainScene.h scenes/SceneLight.cpp scenes/SceneLight.h scenes/SceneFog.cpp scenes/SceneFog.h scenes/SceneColors.h)
+set(SOURCE_FILES main.cpp mesh.cpp mesh.hpp texture.cpp texture.hpp utilities.h models/AbstractModel.h models/VehicleModel.cpp models/VehicleModel.h models/RoadModel.cpp models/RoadModel.h scenes/MainScene.cpp scenes/MainScene.h scenes/SceneLight.cpp scenes/SceneLight.h scenes/SceneFog.cpp scenes/SceneFog.h scenes/SceneColors.h utilities.cpp)
 add_executable(mustang_gl ${SOURCE_FILES})
 
 target_link_libraries(mustang_gl ${ALL_LIBS})

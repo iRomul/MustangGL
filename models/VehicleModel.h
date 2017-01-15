@@ -4,7 +4,7 @@
 
 #include "texture.hpp"
 #include "mesh.hpp"
-#include "math_util.h"
+#include "utilities.h"
 #include "AbstractModel.h"
 
 const float ACCELERATION_FACTOR = 15.0f;

@@ -2,9 +2,6 @@
 
 #include "texture.hpp"
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 using namespace std;
 
@@ -19,6 +16,8 @@ private:
     vector<Vertex> data;
 public:
     bool load(istream &is);
+
+    bool loadObj(istream &is);
 
     void draw();
 };
