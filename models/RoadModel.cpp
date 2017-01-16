@@ -7,7 +7,7 @@
 using namespace std;
 
 RoadModel::RoadModel() :
-        groundTexture("ground.bmp") {
+        groundTexture("concrete.bmp") {
 
 }
 
@@ -30,13 +30,13 @@ void RoadModel::draw() {
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10.0f);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 10.0f);
-    glVertex3f(-3.0f, 0.0f, -3.0f); //10 - текстуры тайлятся
+    glTexCoord2f(0.0f, 50.0f);
+    glVertex3f(-10.0f, 0.0f, -10.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-3.0f, 0.0f, 3.0f);
-    glTexCoord2f(10.0f, 0.0f);
-    glVertex3f(3.0f, 0.0f, 3.0f);
-    glTexCoord2f(10.0f, 10.0f);
-    glVertex3f(3.0f, 0.0f, -3.0f);
+    glVertex3f(-10.0f, 0.0f, 10.0f);
+    glTexCoord2f(50.0f, 0.0f);
+    glVertex3f(10.0f, 0.0f, 10.0f);
+    glTexCoord2f(50.0f, 50.0f);
+    glVertex3f(10.0f, 0.0f, -10.0f);
     glEnd();
 }
