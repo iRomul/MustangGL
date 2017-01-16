@@ -7,15 +7,21 @@
 #include "utilities.h"
 #include "AbstractModel.h"
 
-const float ACCELERATION_FACTOR = 15.0f;
+const float ACCELERATION_FACTOR = 10.0f;
 const float SPEED_CUTOFF_THRESHOLD = 0.2f;
 
 const float BACKWARD_FRICTION_FACTOR = 0.999f;
-const float WHEEL_ROTATION_FACTOR = 3.5f;
+const float WHEEL_ROTATION_FACTOR = 2.0f;
+const float BACK_WHEEL_ROTATION_FACTOR = 4.5f;
 
 const float DRIVETRAIN_ROTATION_SPEED = degreesToRadians(28); // degree per second
 const float DRIVETRAIN_MAX_ROTATION = degreesToRadians(30);
-const float DRIVETRAIN_TO_BODY_FACTOR = 300.0f;
+const float DRIVETRAIN_TO_BODY_FACTOR = 200.0f;
+const float DRIVETRAIN_TO_BODY_FACTOR_BACKWARD = 100.0f;
+
+const float DOOR_MIN_ANGLE = 0;
+const float DOOR_MAX_ANGLE = degreesToRadians(60);
+const float DOOR_OPEN_SPEED = degreesToRadians(70);
 
 struct VehicleModelAnimation {
     enum class DoorState {
@@ -71,13 +77,10 @@ public:
     float rotation = 0.0f;
 
     float wheelRotation = 0.0f;
+    float backWheelRotation = 0.0f;
     float drivetrainRotation = 0.0f;
 
-    const float ANIM_MIN_DOOR_ROT = 0;
-    const float ANIM_MAX_DOOR_ROT = 60;
-    const float ANIM_SPEED = 2;
-
-    float animDoorRot = ANIM_MIN_DOOR_ROT;
+    float doorRotationStatus = DOOR_MIN_ANGLE;
 
     VehicleModel();
     void load() override;

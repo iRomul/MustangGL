@@ -7,6 +7,6 @@ class SceneLight {
     GLenum number;
 
 public:
-    SceneLight(GLenum number, glm::vec4 lightAmbient, glm::vec4 lightDiffuse, glm::vec4 lightPosition);
+    SceneLight(GLenum number, glm::vec4 lightAmbient, glm::vec4 lightDiffuse, glm::vec4 specular, glm::vec4 lightPosition);
     void enable();
 };

@@ -68,6 +68,11 @@ int main() {
     glClearDepth(1.0f);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+    // Lighting support
+    glEnable(GL_LIGHTING);
+
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+
     MainScene scene(window);
 
     do {

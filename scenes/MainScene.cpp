@@ -14,10 +14,10 @@ ViewMode viewMode = FIXED_SCENE_OBSERVE;
 MainScene::MainScene(GLFWwindow *window) {
     this->window = window;
 
-    SceneLight light1(GL_LIGHT1, SC_PINK, SC_DARK_BLUE, vec4(0.0f, 4.0f, 0.0f, 1.0f));
+    SceneLight light1(GL_LIGHT1, SC_WHITE, SC_WHITE, SC_WHITE, vec4(20.0f, 12.0f, 20.0f, 1.0f));
     light1.enable();
 
-    SceneLight light2(GL_LIGHT2, SC_WHITE, SC_WHITE, vec4(4.0f, -4.0f, 0.0f, 1.0f));
+    SceneLight light2(GL_LIGHT2, SC_WHITE, SC_WHITE, SC_WHITE, vec4(0.0f, 12.0f, 3.0f, 1.0f));
     light2.enable();
 
     vec3 cameraPos = vec3(6, 6, 6);
@@ -32,8 +32,6 @@ MainScene::MainScene(GLFWwindow *window) {
 
 void MainScene::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glEnable(GL_LIGHTING);
 
     glMatrixMode(GL_PROJECTION);
 

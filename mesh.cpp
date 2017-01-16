@@ -54,7 +54,6 @@ bool Mesh::loadObj(istream &is) {
 
             vertices.push_back(vertex);
 
-//            nlog() << ": read vertex " << glm::to_string(vertex) << endl;
         } else if (command == "vn") {
             /* Normals */
             glm::vec3 normal;
@@ -64,7 +63,6 @@ bool Mesh::loadObj(istream &is) {
 
             normals.push_back(normal);
 
-//            nlog() << "read normal " << glm::to_string(normal) << endl;
         } else if (command == "vp") {
             /* Texture coordinates */
             nlog() << "texture coordinate ignored" << endl;
@@ -104,12 +102,7 @@ bool Mesh::loadObj(istream &is) {
                 v.n[2] = normal.z;
 
                 data.push_back(v);
-
-//                clog << "v[" << vertexIndex << "] (" << glm::to_string(coords) << "), vn[" << normalIndex << "] ("
-//                     << glm::to_string(normal) << ")" << endl;
             }
-
-//            nlog() << "polygon added" << endl;
         } else {
             nlog() << "unsupported command '" << command << "'" << endl;
             clog << "\t full text: '" << line << "'" << endl;
@@ -124,16 +117,12 @@ bool Mesh::loadObj(istream &is) {
 void Mesh::draw() {
     glBegin(GL_TRIANGLES);
 
-    glColor3f(1.0f, 1.0f, 1.0f);
     for (int i = 0; i < data.size(); i++) {
         if (i % 3 == 0) {
             glNormal3f(data[i].n[0], data[i].n[2], -data[i].n[1]);
         }
-        glTexCoord2f(data[i].uv[0], data[i].uv[1]);//координаты текстуры
         glVertex3f(data[i].p[0], data[i].p[2], -data[i].p[1]);//координаты вершин
     }
 
     glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
 }

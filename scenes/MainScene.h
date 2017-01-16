@@ -13,19 +13,22 @@ enum ViewMode {
 };
 
 class MainScene {
-    GLFWwindow* window;
+    GLFWwindow *window;
 
     VehicleModel model;
     RoadModel road;
 
-    glm::vec3 cameraPos = glm::vec3(6, 6, 6);
+    glm::vec3 cameraPos = glm::vec3(-6, 6, -8);
     glm::vec3 cameraTarget = glm::vec3(0, 0, 0);
 
     double lastTime = 0.0;
 
 public:
-    MainScene(GLFWwindow* window);
+    MainScene(GLFWwindow *window);
+
     void draw();
+
     void animate();
+
     void processKeys();
 };
