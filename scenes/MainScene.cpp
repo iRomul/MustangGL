@@ -14,19 +14,19 @@ ViewMode viewMode = FIXED_SCENE_OBSERVE;
 MainScene::MainScene(GLFWwindow *window) {
     this->window = window;
 
-    const float HEIGHT = 15.0f;
-    const float RADIUS = 20.0f;
+    const float HEIGHT = 10.0f;
+    const float RADIUS = 10.0f;
 
-    SceneLight light1(GL_LIGHT1, SC_AMBIENT_GREY, SC_AMBIENT_GREY, SC_AMBIENT_GREY, vec4(RADIUS, HEIGHT, -RADIUS, 1.0f));
+    SceneLight light1(GL_LIGHT1, SC_WHITE, SC_WHITE, SC_WHITE, vec4(0, HEIGHT, 0, 1.0f));
     light1.enable();
 
-    SceneLight light2(GL_LIGHT2, SC_AMBIENT_GREY, SC_AMBIENT_GREY, SC_AMBIENT_GREY, vec4(RADIUS, HEIGHT, RADIUS, 1.0f));
+    SceneLight light2(GL_LIGHT2, SC_BLUE, SC_BLUE, SC_BLUE, vec4(RADIUS, HEIGHT, RADIUS, 1.0f));
     light2.enable();
 
-    SceneLight light3(GL_LIGHT3, SC_AMBIENT_GREY, SC_AMBIENT_GREY, SC_AMBIENT_GREY, vec4(-RADIUS, HEIGHT, RADIUS, 1.0f));
+    SceneLight light3(GL_LIGHT3, SC_RED, SC_RED, SC_RED, vec4(-RADIUS, HEIGHT, RADIUS, 1.0f));
     light3.enable();
 
-    SceneLight light4(GL_LIGHT4, SC_AMBIENT_GREY, SC_AMBIENT_GREY, SC_AMBIENT_GREY, vec4(-RADIUS, HEIGHT, -RADIUS, 1.0f));
+    SceneLight light4(GL_LIGHT4, SC_GREEN, SC_GREEN, SC_GREEN, vec4(-RADIUS, HEIGHT, -RADIUS, 1.0f));
     light4.enable();
 
     vec3 cameraPos = vec3(6, 6, 6);
@@ -72,11 +72,11 @@ void MainScene::draw() {
                 100.0f
         );
 
-        vec3 backPosition = vec3(model.forward.x - 2.5f, 4.0f, model.forward.z + 8.0f);
+        vec3 backPosition = vec3(model.forward.x - 0.6f, 2.4f, model.forward.z - 1.0f);
         vec3 cameraPosition = rotateY(backPosition, model.rotation) + model.position;
         mat4 projectionMatrix =
                 perspectiveMatrix *
-                lookAt(cameraPosition, vec3(model.position.x, 2.0, model.position.z), vec3(0, 1, 0));
+                lookAt(cameraPosition, vec3(model.position.x - 0.6f, 2.2f, model.position.z - 1.0f), vec3(0, 1, 0));
 
         glLoadMatrixf(glm::value_ptr(projectionMatrix));
     }

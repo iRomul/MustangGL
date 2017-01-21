@@ -54,7 +54,7 @@ void VehicleModel::draw() {
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glm::value_ptr(diffuse));
     glm::vec4 specular(0.727811, 0.626959, 0.626959, 0.55);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, glm::value_ptr(specular));
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 76.8f);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 299.8f);
     // Loading identity matrix
     mat4 modelMatrix = mat4(1);
     // Moving model from word center
@@ -89,16 +89,16 @@ void VehicleModel::draw() {
     const float WHEEL_Y_OFFSET = -0.6f;
     const float WHEEL_FRONT_Z_OFFSET = -2.15f;
     const float WHEEL_REAR_Z_OFFSET = 1.75f;
-    const float WHEEL_X_OFFSET = 1.07f;
+    const float WHEEL_X_OFFSET = 1.03f;
 
     /* Drawing wheels */
     glm::vec4 rubberAmbient(0.02, 0.02, 0.02, 1.0);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, glm::value_ptr(rubberAmbient));
-    glm::vec4 rubberDiffuse(0.4, 0.4, 0.4, 1.0);
+    glm::vec4 rubberDiffuse(0.2, 0.2, 0.2, 1.0);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glm::value_ptr(rubberDiffuse));
-    glm::vec4 rubberSpecular(0.4, 0.4, 0.4, 1.0);
+    glm::vec4 rubberSpecular(0.02, 0.02, 0.02, 1.0);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, glm::value_ptr(rubberSpecular));
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10.0f);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 299.0f);
     // Front left wheel
     mat4 wheelMatrix = mat4(1);
     wheelMatrix = translate(wheelMatrix, vec3(-WHEEL_X_OFFSET, WHEEL_Y_OFFSET, WHEEL_FRONT_Z_OFFSET));
