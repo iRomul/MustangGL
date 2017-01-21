@@ -39,3 +39,8 @@ CTestTestfile.cmake
 *.exe
 *.out
 *.app
+!/data/
+!/data/ms_body.obj
+!/data/ms_ldoor.obj
+!/data/ms_rdoor.obj
+!/data/ms_wheel.obj
